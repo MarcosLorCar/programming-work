@@ -116,7 +116,7 @@ public class Main {
             if (word.toLowerCase().contains(letter)) {
                 for (int i = 0; i<shown.length; i++) {
                     if (shown[i].equalsIgnoreCase(letter)) {
-                        hidden[i] = letter;
+                        hidden[i] = i == 0 ? shown[i].toUpperCase() : shown[i];
                     }
                 }
 

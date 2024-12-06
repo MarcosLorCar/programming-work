@@ -125,7 +125,7 @@ public class Main {
                     isPlaying = false;
                     System.out.println("Congratulations, you guessed the word!");
                 } else {
-                    System.out.println("That letter chosen is right!");
+                    System.out.println("The chosen letter is right!");
                 }
             } else {
                 // Wrong letter is chosen

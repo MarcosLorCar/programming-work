@@ -132,7 +132,7 @@ public class Main {
                     }
                     System.out.println();
                 } else {
-                    System.out.println("That letter chosen is right!");
+                    System.out.println("The chosen letter is right!");
                 }
             } else {
                 // Wrong letter is chosen

@@ -1,4 +1,5 @@
 import java.io.File;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
@@ -121,9 +122,15 @@ public class Main {
                 }
 
                 // Check if word is completely shown
-                if (shown == hidden) {
+                if (Arrays.equals(shown, hidden)) {
                     isPlaying = false;
                     System.out.println("Congratulations, you guessed the word!");
+
+                // Showing the full word.
+                    for (int i=0;i<shown.length;i++) {
+                        System.out.print(shown[i] + " ");
+                    }
+                    System.out.println();
                 } else {
                     System.out.println("That letter chosen is right!");
                 }

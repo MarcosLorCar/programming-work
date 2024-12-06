@@ -1,31 +1,29 @@
 import java.io.File;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
-    private static final String[][] easyWords = new String[20][2];
-    private static final String[][] mediumWords = new String[20][2];
-    private static final String[][] hardWords = new String[20][2];
+    private static final Scanner KEYBOARD = new Scanner(System.in);
+    private static String[][] easyWords;
+    private static String[][] mediumWords;
+    private static String[][] hardWords;
+    private static String[] hangedManAscii;
     private static String difficulty = "none";
 
 
-    private static final Scanner KEYBOARD = new Scanner(System.in);
     public static void main(String[] args) throws Exception {
         System.out.println("Welcome to the game of the hanged man!");
 
         // Read words in the files
         readFiles();
 
-        boolean exit;
-
-        do {
-            exit = menu();
-        } while (!exit);
+        menu();
     }
 
-    static boolean menu() {
-        int option;
-        System.out.printf("""
+    static void menu() {
+        boolean exit = false;
+        do {
+            int option;
+            System.out.printf("""
 
             Select one of the following options:
             1 - Play.
@@ -35,28 +33,29 @@ public class Main {
             Enter the option you wish to choose:
             -> \s""", difficulty);
 
-        option = KEYBOARD.nextInt();
+            option = KEYBOARD.nextInt();
 
-        switch (option) {
-            // Entering the play option.
-            case 1:
-                if (difficulty == "none") {
-                    System.out.println("First you have to select the difficulty.");
-                } else {
-                    play();
-                }
-                break;
-            // Entering the difficulty option.
-            case 2:
-                difficultyMenu();
-                break;
-            // Exiting the program.
-            case 3:
-                return true;
-            default:
-                System.out.println("Option selected is not available.");
-        }
-        return false;
+            switch (option) {
+                // Entering the play option.
+                case 1:
+                    if (difficulty == "none") {
+                        System.out.println("First you have to select the difficulty.");
+                    } else {
+                        play();
+                    }
+                    break;
+                // Entering the difficulty option.
+                case 2:
+                    difficultyMenu();
+                    break;
+                // Exiting the program.
+                case 3:
+                    exit = true;
+                    break;
+                default:
+                    System.out.println("Option selected is not available.");
+            }
+        } while (!exit);
     }
 
     static String[] getRandomWord() {
@@ -97,6 +96,8 @@ public class Main {
 
         boolean isPlaying = true;
 
+        System.out.print(hangedManAscii[0]);
+
         System.out.println("The word has "+ word.length() + " letters.");
         System.out.println("The word's category is \"" + category + "\"");
 
@@ -117,16 +118,21 @@ public class Main {
             if (word.toLowerCase().contains(letter)) {
                 for (int i = 0; i<shown.length; i++) {
                     if (shown[i].equalsIgnoreCase(letter)) {
-                        hidden[i] = i == 0 ? shown[i].toUpperCase() : shown[i];
+                        hidden[i] = shown[i];
                     }
                 }
+                boolean equals = true;
+
+                for (int i=0; i<hidden.length; i++)
+                    if (!(hidden[i] == shown[i]))
+                        equals = false;
 
                 // Check if word is completely shown
-                if (Arrays.equals(shown, hidden)) {
+                if (equals) {
                     isPlaying = false;
                     System.out.println("Congratulations, you guessed the word!");
 
-                // Showing the full word.
+                    // Showing the full word.
                     for (int i=0;i<shown.length;i++) {
                         System.out.print(shown[i] + " ");
                     }
@@ -137,46 +143,88 @@ public class Main {
             } else {
                 // Wrong letter is chosen
                 wrongAnswer++;
+                System.out.print(hangedManAscii[wrongAnswer]);
+                System.out.println("The chosen letter is wrong.");
                 System.out.println("Mistakes: " + wrongAnswer + "/6");
                 if (wrongAnswer >= 6) {
+                    // Game over sequence
                     isPlaying = false;
                     System.out.println("You have reached 6 mistakes and the man has been hanged up. Game over.");
-                    for (int i=0;i<shown.length;i++) {
+
+                    System.out.print("The word was: ");
+                    for (int i=0; i<shown.length; i++) {
                         System.out.print(shown[i] + " ");
                     }
+                    System.out.println();
                 }
             }
         }
     }
 
     static void readFiles() throws Exception {
-        Scanner easySc = new Scanner(new File("easy.txt"));
-        Scanner mediumSc = new Scanner(new File("medium.txt"));
-        Scanner hardSc = new Scanner(new File("hard.txt"));
+        // Initialize the words arrays
+        File easyFile = new File("easy.txt");
+        File mediumFile = new File("medium.txt");
+        File hardFile = new File("hard.txt");
 
-        for (int i = 0; i < easyWords.length; i++) {
-            if(easySc.hasNext()){
-                easyWords[i][0] = easySc.nextLine();
-                easyWords[i][1] = easySc.nextLine();
-            }
-        }
-        easySc.close();
+        easyWords = readWordPairs(easyFile);
 
-        for (int i = 0; i < mediumWords.length; i++) {
-            if(mediumSc.hasNext()){
-                mediumWords[i][0] = mediumSc.nextLine();
-                mediumWords[i][1] = mediumSc.nextLine();
-            }
-        }
-        mediumSc.close();
+        mediumWords = readWordPairs(mediumFile);
 
-        for (int i = 0; i < hardWords.length; i++) {
-            if(hardSc.hasNext()){
-                hardWords[i][0] = hardSc.nextLine();
-                hardWords[i][1] = hardSc.nextLine();
+        hardWords = readWordPairs(hardFile);
+
+        // Load the ASCII art as well
+        File asciiFile = new File("ascii_arts.txt");
+        Scanner asciiScanner = new Scanner(asciiFile);
+
+        hangedManAscii = new String[7]; // Fixed size of 7 error arts
+
+        int index = 0; // Keep track of where to store next complete art
+        String figure = ""; // Variable to buffer each art
+        while (asciiScanner.hasNextLine()) {
+            // Read line by line
+            String line = asciiScanner.nextLine();
+            if (line != "") {
+                figure += line + "\n";
+            } else {
+                // When there is a blank line, store the art accumulated and start again
+                hangedManAscii[index] = figure;
+                index++;
+                figure = "";
             }
+
+            // This is to store the last one, if there isn't a blank line at the end
+            if ((!asciiScanner.hasNextLine()) && (line != ""))
+                hangedManAscii[index] = figure;
         }
-        hardSc.close();
+    }
+
+    static int countLines(File file) throws Exception {
+        int count = 0;
+        Scanner sc = new Scanner(file);
+        while (sc.hasNextLine()) {
+            sc.nextLine();
+            count++;
+        }
+        sc.close();
+        return count;
+    }
+
+    static String[][] readWordPairs(File file) throws Exception {
+        int i = 0;
+        Scanner sc = new Scanner(file);
+        int lineCount = countLines(file);
+
+        // 2D array with the first index pointing to a pair (lineCount),
+        // and the second meaning word or its category (2)
+        String[][] words = new String[lineCount][2];
+        while (sc.hasNextLine()) {
+            words[i][0] = sc.nextLine();
+            words[i][1] = sc.nextLine();
+            i++;
+        }
+        sc.close();
+        return words;
     }
 
     static void difficultyMenu() {

@@ -59,18 +59,21 @@ public class Main {
     }
 
     static String[] getRandomWord() {
-        int randomNumber = (int) (Math.random()*20);
+        int randomNumber;
         String[] word = new String[2];
 
         switch (difficulty) {
             // Both the word and the category are selected.
             case "easy":
+                randomNumber = (int) (Math.random()*easyWords.length);
                 word = easyWords[randomNumber];
                 break;
             case "medium":
+                randomNumber = (int) (Math.random()*mediumWords.length);
                 word = mediumWords[randomNumber];
                 break;
             case "hard":
+                randomNumber = (int) (Math.random()*hardWords.length);
                 word = hardWords[randomNumber];
                 break;
         }
